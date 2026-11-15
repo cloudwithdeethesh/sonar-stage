@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtualenv
+.venv/
+venv/
+
+# Test / coverage artifacts (stage 5 inputs, generated per run)
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+test-report.xml
+
+# Sonar scanner workspace
+.scannerwork/
+
+# Env / secrets — .env.example may be committed as a shape reference
+.env
+.env.*
+!.env.example
+
+# SQLite (findings store §7 — runtime artifact)
+*.db
+*.sqlite
+*.sqlite3
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
