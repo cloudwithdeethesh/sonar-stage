@@ -142,10 +142,13 @@ Metrics in the report: issues found, % per state, verified-fix rate,
 false-positive rate, LLM error rate, time per issue.
 
 ## 8. Local stack
-- SonarQube Community Build (Docker) on `http://localhost:9000`
+- SonarQube Community Build **25.1.0.102122**, **Standard Experience** mode, on `http://localhost:9000`
+  Project key: `Sonar-Stage-Sample`
 - sonar-scanner via `sonarsource/sonar-scanner-cli` (container → `http://host.docker.internal:9000`)
-- Ollama on `http://localhost:11434/v1`, model `qwen2.5-coder:7b`
-- Python 3.12+, pytest, pytest-cov; later GitLab CE + runner in Docker
+- LLM during development: **OpenAI API** (OpenAI-compatible endpoint; no interface change)
+- LLM for final validation: **Ollama `qwen2.5-coder:7b`** on `http://localhost:11434/v1`
+- Python 3.12+, pytest, pytest-cov
+- CI: **gitlab.com** with a **local `gitlab-runner`**
 
 ## 9. Layout
 ```
@@ -172,10 +175,20 @@ ci/              gitlab-ci.sonar.yml (drop-in jobs)
 6. Verify loop in a temp worktree (re-test + re-scan); suggest-only default.
 7. Delivery: MR comments with dedupe + fallback; safe auto-commit to a new branch.
 8. Findings store + JSON report + metrics.
-9. GitLab CE pipeline running stages 5–6 locally; failure-mode tests
+9. gitlab.com pipeline running stages 5–6 via a local gitlab-runner; failure-mode tests
    (stale analysis, LLM down, bad JSON, token missing, scan fails).
 
 ## 11. Coding rules
 - Small modules, type hints, docstrings; no network in unit tests (mock).
 - Every acceptance criterion in §5–§6 has at least one test.
 - One clear error message per failure; never print secrets.
+
+## 12. Working agreement
+- **One milestone per session.** Finish it before starting another. _Why:_ keeps context small and each session reviewable.
+- **Plan first.** Use `/start-milestone N` before writing any code. _Why:_ catches design mistakes while they're still cheap.
+- **One branch per milestone.** Name: `mN-short-name` (e.g. `m1-sample-project`). _Why:_ each milestone is an independent, reviewable unit.
+- **Small commits, Conventional Commits.** `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `refactor:`. Scope optional (e.g. `feat(stage5):`). _Why:_ readable history; enables future changelog automation.
+- **Tests pass before every commit.** `/finish-milestone` enforces this with `pytest`. Exit code 5 (no tests collected) is OK on scaffolding-only milestones. _Why:_ `main` is always a working baseline.
+- **Merge via MR only; no direct pushes to `main`.** _Why:_ matches the production pipeline's review workflow.
+- **No secrets ever.** Tokens, keys, `.env*` files stay out of commits, logs, and URLs. Enforced by `.gitignore`, Claude Code's deny list, and the secret scan in `/finish-milestone`. _Why:_ §6, non-negotiable.
+- **Every change is explained.** A short "what and why" before each file write or significant command. _Why:_ matches §10 — "do one at a time; explain changes; ask before installing anything."
