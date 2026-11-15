@@ -46,7 +46,7 @@ Each item addresses a failure mode commonly seen in early LLM-assisted code-revi
 
 Correctness
 1. The gate counts blockers from SonarQube's own data, never from an LLM's JSON — an LLM can downgrade or drop an issue.
-2. On MR analyses, issues and hotspots are fetched scoped to the current PR/branch with analysis-id filters — never the whole project's main-branch issues.
+2. On MR analyses, issues are scoped to what actually changed. SonarQube Community Build has no native branch/PR analysis filter, so scoping is achieved in two layers: (a) an analysis-ID guard that refuses to evaluate unless the stored analysis ID matches the latest analysis for the current commit, and (b) filtering issues to those whose file/line appears in the MR diff (from the GitLab diff API) — only those issues are eligible for LLM classification, auto-fix, or blocking the gate.
 3. The scan job must not be `allow_failure: true`; the evaluator must refuse to read a stale analysis.
 4. On MR runs, a coverage failure upstream must not silently skip the Sonar analysis.
 5. A JSON parse failure must not drop a whole batch of issues silently — each issue must get a classification or an explicit `llm_error` state.
@@ -85,8 +85,13 @@ Usability
 ### Stage 6 – Evaluation
 1. **Guard:** refuse to run without `SONAR_ANALYSIS_ID`, or if it is not the latest
    analysis for this branch/PR. Never evaluate stale data.
-2. **Fetch (scoped):** issues + hotspots for this PR/branch, all pages, all statuses
-   that are open. SonarQube is the **source of truth**.
+2. **Fetch (scoped):** all open issues + hotspots for the project, all pages. SonarQube
+   Community Build has no native branch/PR analysis filter, so the full project issue
+   list is fetched and MR scope is enforced in two layers: (1) the analysis-ID guard
+   (step 1) ensures the analysis belongs to the current commit; (2) triage (step 3)
+   flags each issue `in_diff` by cross-referencing the GitLab MR diff — only `in_diff`
+   issues are eligible for LLM classification, auto-fix, or blocking the gate.
+   SonarQube is the **source of truth** for issue existence and severity.
 3. **Triage before LLM:** severity/impact threshold, rule allow-list for auto-fix,
    "in MR diff?" flag (from GitLab diff), file size limit. Every issue gets a reason.
 4. **Classify (LLM):** per issue → `true_positive | false_positive | needs_review`
@@ -171,7 +176,8 @@ ci/              gitlab-ci.sonar.yml (drop-in jobs)
 2. Common layer: config, HTTP (TLS/timeouts/retries), structured logs, redaction.
 3. Stage 5: input check, scan wrapper, analysis-id hand-off, health check.
 4. Stage 6 core: guarded fetch (scoped), triage, reconcile, gate – **no LLM yet**.
-5. LLM classify + propose (Ollama), schema validation, retries, redaction.
+5. LLM classify + propose (OpenAI API during development), schema validation, retries,
+   redaction; final validation with Ollama `qwen2.5-coder:7b`.
 6. Verify loop in a temp worktree (re-test + re-scan); suggest-only default.
 7. Delivery: MR comments with dedupe + fallback; safe auto-commit to a new branch.
 8. Findings store + JSON report + metrics.
