@@ -41,19 +41,25 @@ run_tests:
 
 sonarqube_scan:
   stage: Quality_Gate
+  image:
+    name: sonarsource/sonar-scanner-cli:12.4.0.4321_8.4.0
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: "0"
   allow_failure: true
   script:
-    - |
-      python - <<'PY'
-      import json, os, sys, urllib.request
-      url = os.environ["SONAR_HOST_URL"].rstrip("/") + "/api/system/status"
-      with urllib.request.urlopen(url, timeout=10) as r:
-          status = json.load(r).get("status", "UNKNOWN")
-      print(f"SonarQube status: {status}")
-      sys.exit(0 if status == "UP" else 1)
-      PY
+    - sonar-scanner -Dsonar.host.url=$SONAR_HOST_URL
 
 sonar_recommendation:
   stage: Sonar_Recommendation
+  needs:
+    - job: sonarqube_scan
+      artifacts: false
+  variables:
+    DRY_RUN: "true"
   script:
-    - 'echo "placeholder - stage 4 — real QC/sonar_evaluator.py arrives in milestone 2"'
+    - python -m QC.sonar_evaluator
+  artifacts:
+    when: always
+    paths:
+      - sonar-recommendation-report.json
