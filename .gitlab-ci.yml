@@ -26,7 +26,18 @@ generate_tests:
 run_tests:
   stage: Unit_Test_Execution
   script:
-    - 'echo "placeholder - stage 2 — real pytest + coverage arrive in milestone 1"'
+    - pip install --no-cache-dir -r requirements-dev.txt
+    - pytest
+  artifacts:
+    when: always
+    paths:
+      - coverage.xml
+      - test-report.xml
+    reports:
+      junit: test-report.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
 sonarqube_scan:
   stage: Quality_Gate
