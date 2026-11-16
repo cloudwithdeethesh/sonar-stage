@@ -1,0 +1,48 @@
+stages:
+  - Unit_Test_Generation
+  - Unit_Test_Execution
+  - Quality_Gate
+  - Sonar_Recommendation
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_MESSAGE =~ /\[skip ci\]/
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+default:
+  tags: [local-mac]
+  image: python:3.12.16-slim-bookworm
+
+generate_tests:
+  stage: Unit_Test_Generation
+  script:
+    - 'echo "placeholder - stage 1 — tests are hand-written and committed (see milestone 1)"'
+
+run_tests:
+  stage: Unit_Test_Execution
+  script:
+    - 'echo "placeholder - stage 2 — real pytest + coverage arrive in milestone 1"'
+
+sonarqube_scan:
+  stage: Quality_Gate
+  allow_failure: true
+  script:
+    - |
+      python - <<'PY'
+      import json, os, sys, urllib.request
+      url = os.environ["SONAR_HOST_URL"].rstrip("/") + "/api/system/status"
+      with urllib.request.urlopen(url, timeout=10) as r:
+          status = json.load(r).get("status", "UNKNOWN")
+      print(f"SonarQube status: {status}")
+      sys.exit(0 if status == "UP" else 1)
+      PY
+
+sonar_recommendation:
+  stage: Sonar_Recommendation
+  script:
+    - 'echo "placeholder - stage 4 — real QC/sonar_evaluator.py arrives in milestone 2"'

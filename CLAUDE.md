@@ -89,7 +89,7 @@ per finding on the developer's MR + one summary comment (counts by severity, fin
 table, verdict); blocking via "open threads must be resolved"; no database.
 
 ## 7. Milestones
-0b. Runner + placeholder 4-stage pipeline green on gitlab.com.
+0b. [x] Runner + placeholder 4-stage pipeline green on gitlab.com.
 1.  Sample app in `src/`, dirty samples in `samples/`, hand-written tests
     (~70–85% coverage); `coverage.xml` + `test-report.xml` produced.
 2.  Mirror stages 2–4 (§3–§4); pipeline green in dry-run.
