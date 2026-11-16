@@ -1,0 +1,13 @@
+{
+  "paging": {"pageIndex": 1, "pageSize": 500, "total": 1},
+  "hotspots": [
+    {
+      "key": "fake-hotspot-dddddd1",
+      "component": "Sonar-Stage-Sample-TEST:samples/py/dirty_security.py",
+      "line": 23,
+      "securityCategory": "command-injection",
+      "vulnerabilityProbability": "HIGH",
+      "message": "Example hotspot used by the offline smoke test."
+    }
+  ]
+}
