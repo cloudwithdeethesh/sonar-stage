@@ -92,7 +92,7 @@ table, verdict); blocking via "open threads must be resolved"; no database.
 0b. [x] Runner + placeholder 4-stage pipeline green on gitlab.com.
 1.  [x] Sample app in `src/`, dirty samples in `samples/`, hand-written tests
     (~70–85% coverage); `coverage.xml` + `test-report.xml` produced.
-2.  Mirror stages 2–4 (§3–§4); pipeline green in dry-run.
+2.  [x] Mirror stages 2–4 (§3–§4); pipeline green in dry-run.
 3.  Baseline run: save the report, scan results and a short BASELINE.md.
 4+. One gap from §6 per milestone, compared against the baseline.
 
