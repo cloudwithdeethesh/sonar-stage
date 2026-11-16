@@ -21,12 +21,12 @@ default:
 generate_tests:
   stage: Unit_Test_Generation
   script:
-    - echo "placeholder: stage 1 — tests are hand-written and committed (see milestone 1)"
+    - 'echo "placeholder - stage 1 — tests are hand-written and committed (see milestone 1)"'
 
 run_tests:
   stage: Unit_Test_Execution
   script:
-    - echo "placeholder: stage 2 — real pytest + coverage arrive in milestone 1"
+    - 'echo "placeholder - stage 2 — real pytest + coverage arrive in milestone 1"'
 
 sonarqube_scan:
   stage: Quality_Gate
@@ -45,4 +45,4 @@ sonarqube_scan:
 sonar_recommendation:
   stage: Sonar_Recommendation
   script:
-    - echo "placeholder: stage 4 — real QC/sonar_evaluator.py arrives in milestone 2"
+    - 'echo "placeholder - stage 4 — real QC/sonar_evaluator.py arrives in milestone 2"'
